@@ -1,16 +1,18 @@
 package com.github.dearrudam.hypermediastudies.thingshop.representation;
 
 import com.github.dearrudam.hypermediastudies.thingshop.entity.Item;
+import com.sebastian_daschner.siren4javaee.FieldType;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.JsonObject;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
-import static com.sebastian_daschner.siren4javaee.Siren.createEntityBuilder;
+import static com.sebastian_daschner.siren4javaee.Siren.*;
 
 @ApplicationScoped
 public class EntityBuilder {
@@ -31,7 +33,7 @@ public class EntityBuilder {
 
         items.list().stream().map(i -> buildItemTeaser(i, uriInfo)).forEach(entityBuilder::addEntity);
 
-        if(items.count() > 0) {
+        if (items.count() > 0) {
             if (items.hasPreviousPage()) {
                 Page page = currentPage.previous();
                 entityBuilder.addLink(linkBuilder.forItems(uriInfo, page.index, page.size), "previous");
@@ -45,9 +47,44 @@ public class EntityBuilder {
 
         entityBuilder.addLink(linkBuilder.forRootResources(uriInfo), "root");
 
+        URI itemlink = linkBuilder.forItems(uriInfo);
+        String actionName = "add-item";
+        String method = "POST";
+        String title = "Add Item";
+
+        entityBuilder
+                .addAction(createActionBuilder()
+                        .setName(actionName)
+                        .setType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .setMethod(method)
+                        .setHref(itemlink)
+                        .setTitle(title)
+                        .addField(
+                                createFieldBuilder()
+                                        .setName("name")
+                                        .setTitle("Item's name")
+                                        .setType(FieldType.TEXT)
+                        )
+                        .addField(
+                                createFieldBuilder()
+                                        .setName("price_currency")
+                                        .setTitle("Item's currency")
+                                        .setType(FieldType.TEXT)
+                                        .setValue("BRL")
+                        )
+                        .addField(
+                                createFieldBuilder()
+                                        .setName("price_amount")
+                                        .setTitle("Item's amount")
+                                        .setType(FieldType.NUMBER)
+                                        .setValue("0.00")
+                        )
+                        .build());
+
         return entityBuilder
                 .build();
     }
+
 
     public JsonObject buildItem(Item item, UriInfo uriInfo) {
         com.sebastian_daschner.siren4javaee.EntityBuilder entityBuilder = createEntityBuilder().addClass("item");
@@ -55,8 +92,49 @@ public class EntityBuilder {
                 .addProperty("price_currency", item.amount.currency)
                 .addProperty("price_amount", item.amount.amount)
                 .addLink(linkBuilder.forItem(item, uriInfo), "self")
-                .addLink(linkBuilder.forItems(uriInfo,0,5), "items")
+                .addLink(linkBuilder.forItems(uriInfo, 0, 5), "items")
                 .addLink(linkBuilder.forRootResources(uriInfo), "root");
+
+        URI itemlink = linkBuilder.forItem(item, uriInfo);
+
+        entityBuilder
+                .addAction(createActionBuilder()
+                        .setName("edit-item")
+                        .setType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .setMethod("PUT")
+                        .setHref(itemlink)
+                        .setTitle("Edit item")
+                        .addField(
+                                createFieldBuilder()
+                                        .setName("name")
+                                        .setTitle("Item's name")
+                                        .setType(FieldType.TEXT)
+                                        .setValue(item.name)
+                        )
+                        .addField(
+                                createFieldBuilder()
+                                        .setName("price_currency")
+                                        .setTitle("Item's currency")
+                                        .setType(FieldType.TEXT)
+                                        .setValue(item.amount.currency)
+                        )
+                        .addField(
+                                createFieldBuilder()
+                                        .setName("price_amount")
+                                        .setTitle("Item's amount")
+                                        .setType(FieldType.NUMBER)
+                                        .setValue(item.amount.amount.toString())
+                        )
+                        .build());
+        entityBuilder
+                .addAction(createActionBuilder()
+                        .setName("del-item")
+                        .setType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .setMethod("DELETE")
+                        .setHref(itemlink)
+                        .setTitle("Delete Item")
+                        .build());
+
         return entityBuilder.build();
     }
 
@@ -69,7 +147,7 @@ public class EntityBuilder {
 
     public JsonObject buildRoot(UriInfo uriInfo) {
         com.sebastian_daschner.siren4javaee.EntityBuilder entityBuilder = createEntityBuilder().addClass("root");
-        entityBuilder.addLink(linkBuilder.forItems(uriInfo,0,5),"items");
+        entityBuilder.addLink(linkBuilder.forItems(uriInfo, 0, 5), "items");
         return entityBuilder.build();
     }
 }

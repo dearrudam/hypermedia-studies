@@ -18,6 +18,10 @@ public class LinkBuilder {
                 .queryParam("pageSize", pageSize).build();
     }
 
+    public URI forItems(UriInfo uriInfo) {
+        return createResourceURI(uriInfo, ItemsResource.class, "items").build();
+    }
+
     private UriBuilder createResourceURI(UriInfo uriInfo, Class<?> resourceClass, String method) {
         return uriInfo.getBaseUriBuilder().path(resourceClass).path(resourceClass, method);
     }
@@ -33,4 +37,6 @@ public class LinkBuilder {
     public URI forRootResources(UriInfo uriInfo) {
         return createResourceURI(uriInfo, ThingShopResource.class);
     }
+
+
 }
