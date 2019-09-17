@@ -29,14 +29,15 @@ public class ThingShopResourceTest {
                 .then()
                 .statusCode(200)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                .body( equalTo("{}"))
+                //.body( equalTo("{}"))
                 .body(matchesJsonSchemaInClasspath("siren.schema.json"))
                 .body(not("{}"))
                 .body("links.size()", greaterThan(0))
                 .body("links*.rel", not(empty()))
                 .body("links*.href", not(empty()))
-                .body("links[0].name", is("items"))
-                .body("links[0].href", is(String.format("%sresources/items",url.toString())))
+                .body("links[0].rel.size()", greaterThan(0))
+                .body("links[0].rel[0]", is("items"))
+                .body("links[0].href", is(String.format("%sresources/items?page=0&pageSize=5",url.toString())))
 
         ;
     }
