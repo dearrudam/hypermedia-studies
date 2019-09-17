@@ -1,0 +1,22 @@
+version: '3'
+services:
+  postgres:
+    image: "postgres:10.5"
+    environment:
+    - POSTGRES_USER=thingshop
+    - POSTGRES_PASSWORD=thingshop
+    - POSTGRES_DB=thingshop_db
+    ports:
+    - 5432:5432
+    ulimits:
+      memlock: -1
+#  docker run --ulimit memlock=-1:-1 -it --rm=true --memory-swappiness=0 --name postgres-quarkus-hibernate  -p 5432:5432
+#  thingshop:
+#    build:
+#      context: ./
+#        dockerfile: ./src/main/docker/Dockerfile.jvm
+#    ports:
+#      - "8080:8080"
+
+
+

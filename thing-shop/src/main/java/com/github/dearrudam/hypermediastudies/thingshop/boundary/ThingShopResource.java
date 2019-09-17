@@ -1,32 +1,33 @@
 package com.github.dearrudam.hypermediastudies.thingshop.boundary;
 
+import com.github.dearrudam.hypermediastudies.thingshop.representation.EntityBuilder;
+
 import javax.enterprise.context.RequestScoped;
-import javax.json.Json;
-import javax.json.JsonObject;
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 @Path("/resources")
+@Produces(MediaType.APPLICATION_JSON)
 @RequestScoped
 public class ThingShopResource {
 
+    @Context
+    UriInfo uriInfo;
+
+    @Inject
+    EntityBuilder entityBuilder;
 
     @GET
-    @Produces("application/vnd.siren+json")
     public Response root(@Context UriInfo uriInfo) {
         return Response.ok(
-                Json.createObjectBuilder()
-                        .add("actions", Json
-                                .createArrayBuilder()
-                                .add(Json
-                                        .createObjectBuilder()
-                                        .add("name", "items")
-                                        .add("href", uriInfo.getBaseUriBuilder().path(ItemsResource.class, "items").build().toString())
-                                        .build()
-                                ).build()
-                        ).build())
+                    entityBuilder.buildRoot(uriInfo)
+                )
                 .build();
     }
 

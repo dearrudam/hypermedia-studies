@@ -6,6 +6,7 @@ import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 
 import java.net.URL;
 import java.text.MessageFormat;
@@ -27,15 +28,15 @@ public class ThingShopResourceTest {
                 .when().get("/resources")
                 .then()
                 .statusCode(200)
-                .header(HttpHeaders.CONTENT_TYPE, "application/vnd.siren+json")
-                //.body( equalTo("{}"))
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .body( equalTo("{}"))
                 .body(matchesJsonSchemaInClasspath("siren.schema.json"))
                 .body(not("{}"))
-                .body("actions.size()", greaterThan(0))
-                .body("actions*.name", not(empty()))
-                .body("actions*.href", not(empty()))
-                .body("actions[0].name", is("items"))
-                .body("actions[0].href", is(String.format("%sresources/items",url.toString())))
+                .body("links.size()", greaterThan(0))
+                .body("links*.rel", not(empty()))
+                .body("links*.href", not(empty()))
+                .body("links[0].name", is("items"))
+                .body("links[0].href", is(String.format("%sresources/items",url.toString())))
 
         ;
     }
