@@ -11,6 +11,8 @@ import javax.json.JsonObject;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.util.function.Consumer;
+import java.util.stream.DoubleStream;
 
 import static com.sebastian_daschner.siren4javaee.Siren.*;
 
@@ -20,7 +22,7 @@ public class EntityBuilder {
     @Inject
     LinkBuilder linkBuilder;
 
-    public JsonObject buildItems(PanacheQuery<Item> items, UriInfo uriInfo) {
+    public com.sebastian_daschner.siren4javaee.EntityBuilder buildItems(PanacheQuery<Item> items, UriInfo uriInfo) {
 
         Page currentPage = items.page();
 
@@ -81,12 +83,11 @@ public class EntityBuilder {
                         )
                         .build());
 
-        return entityBuilder
-                .build();
+        return entityBuilder;
     }
 
 
-    public JsonObject buildItem(Item item, UriInfo uriInfo) {
+    public com.sebastian_daschner.siren4javaee.EntityBuilder buildItem(Item item, UriInfo uriInfo) {
         com.sebastian_daschner.siren4javaee.EntityBuilder entityBuilder = createEntityBuilder().addClass("item");
         entityBuilder.addProperty("name", item.name)
                 .addProperty("price_currency", item.amount.currency)
@@ -135,19 +136,25 @@ public class EntityBuilder {
                         .setTitle("Delete Item")
                         .build());
 
-        return entityBuilder.build();
+        return entityBuilder;
     }
 
-    public JsonObject buildItemTeaser(Item item, UriInfo uriInfo) {
+    public com.sebastian_daschner.siren4javaee.EntityBuilder buildItemTeaser(Item item, UriInfo uriInfo) {
         com.sebastian_daschner.siren4javaee.EntityBuilder entityBuilder = createEntityBuilder().addClass("item");
         entityBuilder.addProperty("name", item.name)
                 .addLink(linkBuilder.forItem(item, uriInfo), "self");
-        return entityBuilder.build();
+        return entityBuilder;
     }
 
-    public JsonObject buildRoot(UriInfo uriInfo) {
+    public com.sebastian_daschner.siren4javaee.EntityBuilder buildRoot(UriInfo uriInfo) {
         com.sebastian_daschner.siren4javaee.EntityBuilder entityBuilder = createEntityBuilder().addClass("root");
         entityBuilder.addLink(linkBuilder.forItems(uriInfo, 0, 5), "items");
-        return entityBuilder.build();
+        return entityBuilder;
+    }
+
+    public com.sebastian_daschner.siren4javaee.EntityBuilder buildForMessage(String message) {
+        com.sebastian_daschner.siren4javaee.EntityBuilder entityBuilder = createEntityBuilder().addClass("message");
+        entityBuilder.addProperty("message", message);
+        return entityBuilder;
     }
 }

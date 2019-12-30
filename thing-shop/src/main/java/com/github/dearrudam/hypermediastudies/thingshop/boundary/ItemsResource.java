@@ -41,6 +41,7 @@ public class ItemsResource {
     ) {
         return Response.ok(
                 entityBuilder.buildItems(Item.findAll().page(Page.of(page, pageSize)), uriInfo)
+                .build()
         ).build();
     }
 
@@ -51,10 +52,20 @@ public class ItemsResource {
     public Response addItem(
             @FormParam("name") @NotEmpty String name,
             @FormParam("price_currency") @DefaultValue("BRL") String priceCurrency,
-            @FormParam("price_amount") Double priceAmount){
+            @FormParam("price_amount") Double priceAmount) {
         Item item = new Item(name, new Money(priceCurrency, BigDecimal.valueOf(priceAmount).setScale(2)));
         Item.persist(item);
-        return Response.created(linkBuilder.forItem(item, uriInfo)).build();
+
+        com.sebastian_daschner.siren4javaee.EntityBuilder entityResp = entityBuilder.buildItems(Item.findAll()
+                .page(Page.of(0, 10)), uriInfo);
+
+        entityResp.addEntity(entityBuilder.buildForMessage("Item added").build());
+
+        Response entityResponse = Response.ok(
+                entityResp.build()
+        ).build();
+
+        return entityResponse;
     }
 
     @GET
@@ -64,7 +75,7 @@ public class ItemsResource {
         if (item == null)
             return Response.status(Response.Status.NOT_FOUND).build();
         return Response.ok(
-                entityBuilder.buildItem(item, uriInfo)
+                entityBuilder.buildItem(item, uriInfo).build()
         ).build();
     }
 
@@ -75,26 +86,32 @@ public class ItemsResource {
     public Response updateItem(@PathParam("id") Long id,
                                @FormParam("name") @NotEmpty String name,
                                @FormParam("price_currency") @DefaultValue("BRL") String priceCurrency,
-                               @FormParam("price_amount") Double priceAmount){
-        Item item=Item.findById(id);
-        if(item==null){
+                               @FormParam("price_amount") Double priceAmount) {
+        Item item = Item.findById(id);
+        if (item == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         item.name = name;
         item.amount = new Money(priceCurrency, BigDecimal.valueOf(priceAmount).setScale(2));
         Item.persist(item);
-        return Response.ok(entityBuilder.buildItem(item, uriInfo)).build();
+        com.sebastian_daschner.siren4javaee.EntityBuilder entityResp = entityBuilder.buildItem(item, uriInfo);
+        entityResp.addEntity(entityBuilder.buildForMessage("Item " + id + " has been updated").build());
+        return Response.ok(entityResp.build()).build();
     }
 
     @DELETE
     @Path("{id}")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Transactional
-    public Response deleteItem(@PathParam("id") Long id){
+    public Response deleteItem(@PathParam("id") Long id) {
         long deleted = Item.delete("id", id);
-        if(deleted == 0){
+        if (deleted == 0) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        return Response.noContent().build();
+        com.sebastian_daschner.siren4javaee.EntityBuilder entityResp =
+                entityBuilder.buildItems(Item.findAll().page(Page.of(0, 5)),
+                uriInfo);
+        entityResp.addEntity(entityBuilder.buildForMessage("Item " + id + " has been deleted").build());
+        return Response.ok(entityResp.build()).build();
     }
 }

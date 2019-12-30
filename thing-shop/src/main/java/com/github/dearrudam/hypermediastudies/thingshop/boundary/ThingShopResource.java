@@ -26,7 +26,7 @@ public class ThingShopResource {
     @GET
     public Response root(@Context UriInfo uriInfo) {
         return Response.ok(
-                    entityBuilder.buildRoot(uriInfo)
+                    entityBuilder.buildRoot(uriInfo).build()
                 )
                 .build();
     }

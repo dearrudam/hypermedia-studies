@@ -19,7 +19,7 @@ public class LinkBuilder {
     }
 
     public URI forItems(UriInfo uriInfo) {
-        return createResourceURI(uriInfo, ItemsResource.class, "items").build();
+        return forItems(uriInfo, 0, 5);
     }
 
     private UriBuilder createResourceURI(UriInfo uriInfo, Class<?> resourceClass, String method) {
